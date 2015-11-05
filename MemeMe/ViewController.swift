@@ -67,7 +67,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        self.subscribeToKeyboardNotifications()
+        subscribeToKeyboardNotifications()
         
         // Disable the camera button if not available
         cameraButton.enabled = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera)
@@ -75,7 +75,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
-        self.unsubscribeFromKeyboardNotifications()
+        unsubscribeFromKeyboardNotifications()
     }
     
     // Override here to hide the status bar
@@ -86,13 +86,13 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     func keyboardWillShow(notification: NSNotification) {
         if (bottomTextField.isFirstResponder()) {
             // From: https://discussions.udacity.com/t/better-way-to-shift-the-view-for-keyboardwillshow-and-keyboardwillhide/36558
-            self.view.frame.origin.y = getKeyboardHeight(notification) * -1
+            view.frame.origin.y = getKeyboardHeight(notification) * -1
         }
     }
     
     func keyboardWillHide(notification: NSNotification) {
         if (bottomTextField.isFirstResponder()) {
-            self.view.frame.origin.y = 0
+            view.frame.origin.y = 0
         }
     }
     
@@ -103,7 +103,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     }
     
     @IBAction func pinchImage(sender: UIPinchGestureRecognizer) {
-        self.selectedImageView.transform = CGAffineTransformScale(self.selectedImageView.transform, sender.scale, sender.scale)
+        selectedImageView.transform = CGAffineTransformScale(selectedImageView.transform, sender.scale, sender.scale)
         sender.scale = 1
     }
 
@@ -111,7 +111,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         // Get the original image
         if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
-            self.selectedImageView.image = originalImage
+            selectedImageView.image = originalImage
         }
         
         // Enable the share/cancel buttons now that we have an image
@@ -119,12 +119,12 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
         cancelButton.enabled = true
         
         // Dismiss
-        self.dismissViewControllerAnimated(true, completion: nil)
+        dismissViewControllerAnimated(true, completion: nil)
     }
     
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
         // Dismiss
-        self.dismissViewControllerAnimated(true, completion: nil)
+        dismissViewControllerAnimated(true, completion: nil)
     }
     
     // MARK: - UITextField
@@ -161,14 +161,14 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
         imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
-        self.presentViewController(imagePicker, animated: true, completion: nil)
+        presentViewController(imagePicker, animated: true, completion: nil)
     }
     
     @IBAction func selectFromCamera(sender: UIBarButtonItem) {
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
         imagePicker.sourceType = UIImagePickerControllerSourceType.Camera
-        self.presentViewController(imagePicker, animated: true, completion: nil)
+        presentViewController(imagePicker, animated: true, completion: nil)
     }
     
     @IBAction func sharePressed(sender: UIBarButtonItem) {
@@ -196,7 +196,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
             }
         }
         
-        self.presentViewController(activityViewController, animated: true, completion: nil)
+        presentViewController(activityViewController, animated: true, completion: nil)
     }
     
     @IBAction func cancelPressed(sender: UIBarButtonItem) {
@@ -237,21 +237,21 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
         let imageToolbarHeight = imageToolbar.frame.size.height
         let shareToolbarHeight = shareToolbar.frame.size.height
         
-        print(self.view.frame.origin.x)
-        print(self.selectedImageView.image!.size.width)
+        print(view.frame.origin.x)
+        print(selectedImageView.image!.size.width)
     
         // Create the size object (height and width of the image/text - the total height of toolbars
-        let memeSize = CGSizeMake(self.view.frame.size.width, (self.view.frame.size.height - (imageToolbarHeight + shareToolbarHeight)))
+        let memeSize = CGSizeMake(view.frame.size.width, (view.frame.size.height - (imageToolbarHeight + shareToolbarHeight)))
         
         // Create a rectangle obejct to draw the memed image at specific coords x = 0, (y = -toolbarHeight)
-        let memeRect = CGRectMake(self.view.frame.origin.x, (self.view.frame.origin.y
+        let memeRect = CGRectMake(view.frame.origin.x, (view.frame.origin.y
            - shareToolbarHeight), view.bounds.size.width,view.bounds.size.height)
 
         // Get the image context with the size (height, width) from memeSize
         UIGraphicsBeginImageContextWithOptions(memeSize, true, 0.0)
         
         // Draw that view at the rects coords
-        self.view.drawViewHierarchyInRect(memeRect,
+        view.drawViewHierarchyInRect(memeRect,
             afterScreenUpdates: true)
         
         // Create the image fron the graphics context
