@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import AVFoundation;
 
-class ViewController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UITextFieldDelegate {
+class MemeEditorViewController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UITextFieldDelegate {
     
     // MARK: - Default text values
     let defaultTop: String = "TOP"
@@ -35,6 +36,9 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     
     // Memed image
     var memedImage: UIImage?
+    
+    // Edit meme
+    var editMeme: Meme?
 
     // MARK: - UIViewController
     override func viewDidLoad() {
@@ -46,7 +50,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
             NSFontAttributeName: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
             NSStrokeWidthAttributeName: -4
         ]
-        
+
         // Set up the text fields
         topTextField.text = defaultTop
         topTextField.delegate = self
@@ -60,9 +64,17 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
         bottomTextField.autocapitalizationType = .AllCharacters
         bottomTextField.textAlignment = .Center
         
-        // Disable the share & cancel buttons
-        shareButton.enabled = false
         cancelButton.enabled = false
+        
+        // Check if we've been asked to edit an existing meme
+        if let editMeme = editMeme {
+            topTextField.text = editMeme.topText
+            bottomTextField.text = editMeme.bottomText
+            selectedImageView.image = editMeme.originalImage
+        } else {
+            // Disable the share button (when creating a new meme)
+            shareButton.enabled = false
+        }
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -227,26 +239,36 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
     }
     
     // MARK: - Meme functions
-    func save() {
+    func save() {        
+        // Create a new meme model
         let newMeme = Meme(topText: topTextField.text!, bottomText: bottomTextField.text!, originalImage: selectedImageView.image, memedImage: memedImage);
+    
+        // Save the meme model in the AppDelegate array
+        let object = UIApplication.sharedApplication().delegate
+        let appDelegate = object as! AppDelegate
+        appDelegate.memes.append(newMeme)
+        
+        // Dismiss the editor
+        dismissViewControllerAnimated(true, completion: nil)       
     }
     
     func generateMemedImage() -> UIImage {
+        
+        // Get the origin and dimensions of the image after is has been scaled/fit
+        let imageRect = AVMakeRectWithAspectRatioInsideRect(selectedImageView.image!.size, selectedImageView.bounds);
         
         // Get toolbar heights to help calculate the size of the meme image
         let imageToolbarHeight = imageToolbar.frame.size.height
         let shareToolbarHeight = shareToolbar.frame.size.height
         
-        print(view.frame.origin.x)
-        print(selectedImageView.image!.size.width)
-    
         // Create the size object (height and width of the image/text - the total height of toolbars
-        let memeSize = CGSizeMake(view.frame.size.width, (view.frame.size.height - (imageToolbarHeight + shareToolbarHeight)))
+        let memeSize = CGSizeMake(imageRect.width, (view.frame.size.height - (imageToolbarHeight + shareToolbarHeight)))
         
         // Create a rectangle obejct to draw the memed image at specific coords x = 0, (y = -toolbarHeight)
-        let memeRect = CGRectMake(view.frame.origin.x, (view.frame.origin.y
-           - shareToolbarHeight), view.bounds.size.width,view.bounds.size.height)
-
+        let memeRect = CGRectMake(-(imageRect.origin.x), (view.frame.origin.y
+            - shareToolbarHeight), view.bounds.size.width,view.bounds.size.height)
+        
+        
         // Get the image context with the size (height, width) from memeSize
         UIGraphicsBeginImageContextWithOptions(memeSize, true, 0.0)
         
