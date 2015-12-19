@@ -44,27 +44,9 @@ class MemeEditorViewController: UIViewController, UINavigationControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let memeTextAttributes = [
-            NSStrokeColorAttributeName: UIColor.blackColor(),
-            NSForegroundColorAttributeName: UIColor.whiteColor(),
-            NSFontAttributeName: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
-            NSStrokeWidthAttributeName: -4
-        ]
-
         // Set up the text fields
-        topTextField.text = defaultTop
-        topTextField.delegate = self
-        topTextField.defaultTextAttributes = memeTextAttributes
-        topTextField.autocapitalizationType = .AllCharacters
-        topTextField.textAlignment = .Center
-        
-        bottomTextField.text = defaultBottom
-        bottomTextField.delegate = self
-        bottomTextField.defaultTextAttributes = memeTextAttributes
-        bottomTextField.autocapitalizationType = .AllCharacters
-        bottomTextField.textAlignment = .Center
-        
-        cancelButton.enabled = false
+        prepareTextField(topTextField, defaultText: defaultTop)
+        prepareTextField(bottomTextField, defaultText: defaultBottom)
         
         // Check if we've been asked to edit an existing meme
         if let editMeme = editMeme {
@@ -212,16 +194,8 @@ class MemeEditorViewController: UIViewController, UINavigationControllerDelegate
     }
     
     @IBAction func cancelPressed(sender: UIBarButtonItem) {
-        // Reset the text fields
-        topTextField.text = defaultTop
-        bottomTextField.text = defaultBottom
-        
-        // Reset the image
-        selectedImageView.image = nil
-        
-        // Disable the share/cancel buttons
-        shareButton.enabled = false
-        cancelButton.enabled = false
+        // Return to the Sent Memes list
+        dismissViewControllerAnimated(true, completion: nil)
     }
     
     // MARK: - Notifications
@@ -282,6 +256,24 @@ class MemeEditorViewController: UIViewController, UINavigationControllerDelegate
         UIGraphicsEndImageContext()
 
         return memedImage
+    }
+    
+    // MARK: - Helpers
+    func prepareTextField(textField: UITextField, defaultText: String) {
+        super.viewDidLoad()
+        
+        let memeTextAttributes = [
+            NSStrokeColorAttributeName: UIColor.blackColor(),
+            NSForegroundColorAttributeName: UIColor.whiteColor(),
+            NSFontAttributeName: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
+            NSStrokeWidthAttributeName: -4
+        ]
+        
+        textField.delegate = self
+        textField.defaultTextAttributes = memeTextAttributes
+        textField.text = defaultText
+        textField.autocapitalizationType = .AllCharacters
+        textField.textAlignment = .Center
     }
 }
 
